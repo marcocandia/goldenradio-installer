@@ -1,8 +1,6 @@
 {
   "name": "GOLDENRADIO",
   "version": "1.0",
-  "new_install_prompt_erase": true,
-  "show_logs": false,
   "builds": [
     {
       "chipFamily": "ESP32",
