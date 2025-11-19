@@ -5,45 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOLDENRADIO Firmware Web Installer</title>
     <style>
-        :root { --background-color: #1e1e1e; --card-background-color: #2d2d2d; --primary-text-color: #d4d4d4; --secondary-text-color: #a0a0a0; --accent-color: #007acc; --border-color: #444444; --error-color: #e74c3c; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: var(--background-color); color: var(--primary-text-color); padding: 20px; box-sizing: border-box; }
-        .container { max-width: 600px; width: 100%; background-color: var(--card-background-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); text-align: center; padding: 40px; border: 1px solid var(--border-color); }
-        h1 { font-size: 2.5em; margin-top: 0; margin-bottom: 10px; color: #fff; font-weight: 300; }
-        h1 span { font-weight: 600; color: var(--accent-color); }
-        p { color: var(--secondary-text-color); line-height: 1.6; margin-bottom: 30px; }
-        .radio-image { max-width: 80%; height: auto; border-radius: 8px; margin-bottom: 30px; border: 2px solid var(--border-color); }
-        .button { background-color: var(--accent-color); color: #fff; border: none; padding: 15px 30px; font-size: 1.2em; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin: 5px; }
-        .button:hover { background-color: #0099ff; }
-        .button:disabled { background-color: #555; cursor: not-allowed; }
-        .links { margin-top: 30px; font-size: 0.9em; }
-        .links a { color: var(--accent-color); text-decoration: none; margin: 0 10px; }
-        .links a:hover { text-decoration: underline; }
-        #log, #error { margin-top: 20px; font-family: monospace; font-size: 0.9em; color: var(--secondary-text-color); }
-        #error { color: var(--error-color); }
-        #program-controls { display: none; } /* Nascosto all'inizio */
+        :root {
+            --background-color: #1e1e1e;
+            --card-background-color: #2d2d2d;
+            --primary-text-color: #d4d4d4;
+            --secondary-text-color: #a0a0a0;
+            --accent-color: #007acc;
+            --border-color: #444444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--primary-text-color);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 300;
+        }
+        h1 span {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        p {
+            color: var(--secondary-text-color);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .radio-image {
+            max-width: 80%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 2px solid var(--border-color);
+        }
+        esp-web-install-button {
+            --esp-web-install-button-fill-color: var(--accent-color);
+            --esp-web-install-button-text-color: #ffffff;
+            --esp-web-install-button-border-radius: 8px;
+            --esp-web-install-button-font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .links {
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+        .links a {
+            color: var(--accent-color);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <img src="screenshot/PAGINAMAINft8.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
+
         <h1><span>GOLDENRADIO</span> Web Installer</h1>
-        <p id="status-message">
-            Benvenuto! Collega la tua radio ATS25 al computer con un cavo USB dati e clicca "CONNECT".
+
+        <p>
+            Benvenuto! Stai per installare il firmware GOLDENRADIO sulla tua radio ATS25.
+            Collega la radio al computer con un cavo USB dati e segui le istruzioni dopo aver cliccato il pulsante.
         </p>
 
-        <!-- Controlli di Connessione -->
-        <div id="connect-controls">
-            <button id="connect-button" class="button">CONNECT</button>
-        </div>
-        
-        <!-- Controlli di Programmazione (Nascosti all'inizio) -->
-        <div id="program-controls">
-            <p>Connesso! Ora clicca "INSTALL" per iniziare l'installazione.</p>
-            <button id="program-button" class="button">INSTALL GOLDENRADIO</button>
-        </div>
-        
-        <div id="log"></div>
-        <div id="error"></div>
+        <!-- Il tag HTML originale, pulito e senza fronzoli. -->
+        <!-- La sua unica istruzione è di leggere il file manifest.json -->
+        <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
 
         <div class="links">
             <a href="https://www.golden-radio.com" target="_blank">Sito Ufficiale</a> |
@@ -51,97 +100,10 @@
         </div>
     </div>
 
-    <!-- SCRIPT DELLO STRUMENTO UFFICIALE ESPTOOL-JS -->
-    <script src="https://unpkg.com/esptool-js@0.3.0/bundle.js"></script>
-    
-    <script>
-      const connectButton = document.getElementById("connect-button");
-      const programButton = document.getElementById("program-button");
-      const connectControls = document.getElementById("connect-controls");
-      const programControls = document.getElementById("program-controls");
-      const statusMessage = document.getElementById("status-message");
-      const log = document.getElementById("log");
-      const error = document.getElementById("error");
-
-      let device, esploader;
-
-      // Funzione per gestire la connessione
-      connectButton.onclick = async () => {
-        try {
-          // Crea l'oggetto esploader
-          esploader = new ESPLoader({
-              transport: "web-serial",
-              baudrate: 921600, // Usa una velocità alta
-              log: (msg) => (log.textContent = msg),
-              error: (err) => (error.textContent = err),
-          });
-
-          // Connettiti al dispositivo
-          device = await esploader.connect();
-          
-          // Se la connessione ha successo
-          statusMessage.textContent = "Dispositivo connesso con successo!";
-          connectControls.style.display = "none";
-          programControls.style.display = "block";
-          error.textContent = "";
-
-        } catch (e) {
-          error.textContent = "Errore di connessione. Prova a ricollegare la radio e riprova. Se il problema persiste, consulta la guida per la modalità bootloader manuale.";
-          console.error(e);
-        }
-      };
-
-      // Funzione per gestire la programmazione
-      programButton.onclick = async () => {
-        // Disabilita i pulsanti durante l'installazione
-        programButton.disabled = true;
-        statusMessage.textContent = "Installazione in corso... Non scollegare la radio.";
-
-        try {
-            // Definiamo i file da caricare e i loro indirizzi
-            const filesToProgram = [
-                { offset: 0x1000,  path: "bootloader.bin" },
-                { offset: 0x8000,  path: "partitions.bin" },
-                { offset: 0x10000, path: "firmware.bin" },
-            ];
-
-            // Scarica i file e li prepara per il flashing
-            const fileArray = await Promise.all(
-                filesToProgram.map(async (file) => {
-                    const response = await fetch(file.path);
-                    if (!response.ok) {
-                        throw new Error(`Impossibile scaricare ${file.path}`);
-                    }
-                    return {
-                        data: await response.text(),
-                        offset: file.offset,
-                    };
-                })
-            );
-
-            // Scrivi i file sulla flash
-            await esploader.write_flash(
-                fileArray,
-                '40m', // flash_freq
-                'dio', // flash_mode
-                '4MB', // flash_size
-                (bytes_written, total_bytes) => {
-                    const progress = Math.floor((bytes_written / total_bytes) * 100);
-                    log.textContent = `Installazione... ${progress}%`;
-                }
-            );
-
-            // Se tutto va a buon fine
-            statusMessage.textContent = "Installazione completata con successo!";
-            log.textContent = "Puoi ora scollegare e ricollegare la radio.";
-            error.textContent = "";
-
-        } catch (e) {
-            error.textContent = `Errore durante l'installazione: ${e.message}`;
-            console.error(e);
-            programButton.disabled = false; // Riattiva il pulsante in caso di errore
-        }
-      };
-    </script>
+    <!-- Lo script originale, senza nessuna modifica e senza altri script aggiuntivi -->
+    <script
+      type="module"
+      src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"
+    ></script>
 </body>
 </html>
