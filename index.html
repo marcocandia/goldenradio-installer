@@ -90,7 +90,7 @@
             Collega la radio al computer con un cavo USB dati e segui le istruzioni dopo aver cliccato il pulsante.
         </p>
 
-        <!-- ABBIAMO RIMESSO IL TAG ORIGINALE, MA CON UN ID -->
+        <!-- Il tag HTML originale, con il suo ID -->
         <esp-web-install-button id="install-button" manifest="manifest.json"></esp-web-install-button>
 
         <div class="links">
@@ -101,28 +101,19 @@
 
     <!-- SCRIPT DELL'INSTALLATORE (INVARIATO) -->
     <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
-    
-    <!-- NUOVO SCRIPT JAVASCRIPT (CORRETTO E FUNZIONANTE) -->
-    <script>
-      // Attendi che l'intera pagina sia caricata
-      document.addEventListener("DOMContentLoaded", () => {
+
+    <!-- NUOVO SCRIPT JAVASCRIPT (CORRETTO E DEFINITIVO) -->
+    <script type="module">
+      // Aspetta che il componente <esp-web-install-button> sia definito e pronto
+      customElements.whenDefined("esp-web-install-button").then(() => {
         // Trova il nostro componente-pulsante
         const button = document.getElementById("install-button");
         
-        // Sovrascrivi il suo comportamento di default per il dialogo di installazione
-        button.overrides = {
-          // Questa funzione viene chiamata quando il dialogo sta per aprirsi
-          async openInstallDialog() {
-            // Chiamiamo la funzione interna `this.startInstall`
-            // ma le passiamo le nostre opzioni personalizzate
-            this.startInstall({
-              showLog: false,   // Nasconde "Logs"
-              showErase: false, // Nasconde "Erase"
-            });
-          },
-        };
+        // Imposta direttamente le SUE PROPRIETÀ JavaScript.
+        // Questo è il modo corretto per configurarlo.
+        button.showLog = false;
+        button.showErase = false;
       });
     </script>
 </body>
 </html>
-
