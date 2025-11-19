@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
             --accent-color: #007acc;
             --border-color: #444444;
         }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             display: flex;
@@ -25,6 +27,7 @@
             padding: 20px;
             box-sizing: border-box;
         }
+
         .container {
             max-width: 600px;
             width: 100%;
@@ -35,6 +38,7 @@
             padding: 40px;
             border: 1px solid var(--border-color);
         }
+
         h1 {
             font-size: 2.5em;
             margin-top: 0;
@@ -42,15 +46,18 @@
             color: #ffffff;
             font-weight: 300;
         }
+
         h1 span {
             font-weight: 600;
             color: var(--accent-color);
         }
+
         p {
             color: var(--secondary-text-color);
             line-height: 1.6;
             margin-bottom: 30px;
         }
+
         .radio-image {
             max-width: 80%;
             height: auto;
@@ -58,6 +65,7 @@
             margin-bottom: 30px;
             border: 2px solid var(--border-color);
         }
+
         esp-web-install-button {
             --esp-web-install-button-fill-color: var(--accent-color);
             --esp-web-install-button-text-color: #ffffff;
@@ -65,33 +73,42 @@
             --esp-web-install-button-font-size: 1.2em;
             margin-bottom: 20px;
         }
+
         .links {
             margin-top: 30px;
             font-size: 0.9em;
         }
+
         .links a {
             color: var(--accent-color);
             text-decoration: none;
             margin: 0 10px;
         }
+
         .links a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <img src="screenshot/PAGINAMAINft8.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
+        <img src="screenshot/PAGINAMAIN.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
 
         <h1><span>GOLDENRADIO</span> Web Installer</h1>
 
+        <!-- ================== PARAGRAFO MODIFICATO ================== -->
         <p>
-            Benvenuto! Stai per installare il firmware GOLDENRADIO sulla tua radio ATS25.
-            Collega la radio al computer con un cavo USB dati e segui le istruzioni dopo aver cliccato il pulsante.
+            Benvenuto! Collega la radio al computer e clicca il pulsante qui sotto. Si aprirà una finestra per scegliere
+            la porta COM.
+            <br><br>
+            <strong>Suggerimento:</strong> se non sai quale porta selezionare, scollega la radio, clicca
+            <strong>CONNECT</strong> e solo dopo ricollega il cavo USB. La nuova porta che apparirà nell'elenco è quella
+            giusta!
         </p>
+        <!-- ========================================================== -->
 
         <!-- Il tag HTML originale, pulito e senza fronzoli. -->
-        <!-- La sua unica istruzione è di leggere il file manifest.json -->
         <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
 
         <div class="links">
@@ -100,10 +117,8 @@
         </div>
     </div>
 
-    <!-- Lo script originale, senza nessuna modifica e senza altri script aggiuntivi -->
-    <script
-      type="module"
-      src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"
-    ></script>
+    <!-- Lo script originale -->
+    <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
 </body>
+
 </html>
