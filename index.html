@@ -5,97 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GOLDENRADIO Firmware Web Installer</title>
     <style>
-        :root {
-            --background-color: #1e1e1e;
-            --card-background-color: #2d2d2d;
-            --primary-text-color: #d4d4d4;
-            --secondary-text-color: #a0a0a0;
-            --accent-color: #007acc;
-            --border-color: #444444;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: var(--background-color);
-            color: var(--primary-text-color);
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            max-width: 600px;
-            width: 100%;
-            background-color: var(--card-background-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            padding: 40px;
-            border: 1px solid var(--border-color);
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #ffffff;
-            font-weight: 300;
-        }
-        h1 span {
-            font-weight: 600;
-            color: var(--accent-color);
-        }
-        p {
-            color: var(--secondary-text-color);
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        .radio-image {
-            max-width: 80%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border: 2px solid var(--border-color);
-        }
-        esp-web-install-button {
-            --esp-web-install-button-fill-color: var(--accent-color);
-            --esp-web-install-button-text-color: #ffffff;
-            --esp-web-install-button-border-radius: 8px;
-            --esp-web-install-button-font-size: 1.2em;
-            margin-bottom: 20px;
-        }
-        .links {
-            margin-top: 30px;
-            font-size: 0.9em;
-        }
-        .links a {
-            color: var(--accent-color);
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        .links a:hover {
-            text-decoration: underline;
-        }
+        /* ... (tutto il CSS di prima rimane identico) ... */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #1e1e1e; color: #d4d4d4; padding: 20px; box-sizing: border-box; }
+        .container { max-width: 600px; width: 100%; background-color: #2d2d2d; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); text-align: center; padding: 40px; border: 1px solid #444; }
+        h1 { font-size: 2.5em; margin-top: 0; margin-bottom: 10px; color: #fff; font-weight: 300; }
+        h1 span { font-weight: 600; color: #007acc; }
+        p { color: #a0a0a0; line-height: 1.6; margin-bottom: 30px; }
+        .radio-image { max-width: 80%; height: auto; border-radius: 8px; margin-bottom: 30px; border: 2px solid #444; }
+        .install-button { background-color: #007acc; color: #fff; border: none; padding: 15px 30px; font-size: 1.2em; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+        .install-button:hover { background-color: #0099ff; }
+        .links { margin-top: 30px; font-size: 0.9em; }
+        .links a { color: #007acc; text-decoration: none; margin: 0 10px; }
+        .links a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="screenshot/PAGINAMAINft8.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
-
+        <img src="screenshot/PAGINAMAIN.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
         <h1><span>GOLDENRADIO</span> Web Installer</h1>
-
         <p>
             Benvenuto! Stai per installare il firmware GOLDENRADIO sulla tua radio ATS25.
             Collega la radio al computer con un cavo USB dati e segui le istruzioni dopo aver cliccato il pulsante.
         </p>
 
-        <!-- PULSANTE DI INSTALLAZIONE MODIFICATO -->
-        <esp-web-install-button 
-            manifest="manifest.json" 
-            hide-logs
-            hide-erase>
-        </esp-web-install-button>
+        <!-- ABBIAMO SOSTITUITO <esp-web-install-button> CON UN PULSANTE NORMALE -->
+        <button id="install-button" class="install-button">INSTALL GOLDENRADIO</button>
 
         <div class="links">
             <a href="https://www.golden-radio.com" target="_blank">Sito Ufficiale</a> |
@@ -103,10 +37,34 @@
         </div>
     </div>
 
-    <!-- SCRIPT DELL'INSTALLATORE -->
-    <script
-      type="module"
-      src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"
-    ></script>
+    <!-- SCRIPT DELL'INSTALLATORE (INVARIATO) -->
+    <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
+    
+    <!-- NUOVO SCRIPT JAVASCRIPT PER IL CONTROLLO MANUALE -->
+    <script type="module">
+      // Importa la funzione necessaria dallo script
+      import { install } from "https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module";
+
+      // Trova il nostro pulsante
+      const button = document.getElementById("install-button");
+
+      // Aggiungi un "ascoltatore" per il click
+      button.addEventListener("click", async () => {
+        // Quando il pulsante viene cliccato, esegui la funzione `install`
+        // passando un oggetto di configurazione personalizzato.
+        install(
+          {
+            manifest: "manifest.json", // Il nostro file di istruzioni
+            // QUI STA LA MAGIA: nascondiamo i pulsanti che non vogliamo
+            showLog: false,            // Nasconde il pulsante "Logs"
+            showErase: false,          // Nasconde la casella "Erase"
+          },
+          // Questo secondo oggetto è per il pulsante stesso, lo lasciamo di default
+          {
+            button: button,
+          }
+        );
+      });
+    </script>
 </body>
 </html>
