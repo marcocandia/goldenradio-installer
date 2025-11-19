@@ -81,9 +81,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- IMMAGINE DELLA RADIO -->
-        <!-- Sostituisci "screenshot/PAGINAMAINft8.png" con il percorso corretto alla tua immagine! -->
-        <img src="screenshot/PAGINAMAINft8.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
+        <img src="screenshot/PAGINAMAIN.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
 
         <h1><span>GOLDENRADIO</span> Web Installer</h1>
 
@@ -92,8 +90,12 @@
             Collega la radio al computer con un cavo USB dati e segui le istruzioni dopo aver cliccato il pulsante.
         </p>
 
-        <!-- PULSANTE DI INSTALLAZIONE -->
-        <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+        <!-- PULSANTE DI INSTALLAZIONE MODIFICATO -->
+        <esp-web-install-button 
+            manifest="manifest.json" 
+            hide-logs
+            hide-erase>
+        </esp-web-install-button>
 
         <div class="links">
             <a href="https://www.golden-radio.com" target="_blank">Sito Ufficiale</a> |
@@ -108,4 +110,3 @@
     ></script>
 </body>
 </html>
-
