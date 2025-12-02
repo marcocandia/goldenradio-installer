@@ -3,7 +3,7 @@ import struct
 import os
 
 # === CONFIGURAZIONE ===
-INPUT_FILENAME = 'sked-b25.csv'  # Cambia questo con il nome del file scaricato da eibispace
+INPUT_FILENAME = 'goldenradio-installer\eibiconverter\sked-b25.csv'  # Cambia questo con il nome del file scaricato da eibispace
 OUTPUT_FILENAME = 'EIBI.DAT'
 STATION_NAME_LEN = 20            # Lunghezza fissa del nome stazione (byte)
 
