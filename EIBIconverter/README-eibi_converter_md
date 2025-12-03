@@ -1,0 +1,34 @@
+## python eibi_converter.py
+
+
+### 1. Apri nuovo terminale:
+
+PS C:\Users\mmannini\Desktop\MIO\progetto GOLDENINSTALLER> 
+
+### 2.   cd goldenradio-installer\EIBIconverter   
+
+
+PS C:\Users\mmannini\Desktop\MIO\progetto GOLDENINSTALLER\goldenradio-installer\EIBIconverter>
+
+### 3.  python eibi_converter.py
+
+Per verificare che il file sia scritto bene:
+### 3.  python verify_eibi.py
+
+
+
+--- ELABORAZIONE sked-b25.csv ---
+Ordinamento dei dati per frequenza...
+Scrittura di EIBI.DAT...
+--- COMPLETATO ---
+Record scritti: 9563
+Record saltati: 1
+Dimensione file: 242.81 KB
+Copia 'EIBI.DAT' nella cartella 'data' del tuo progetto PlatformIO.
+PS C:\Users\mmannini\Desktop\MIO\progetto GOLDENINSTALLER\goldenradio-installer\EIBIconverter>
+
+
+
+
+
+
