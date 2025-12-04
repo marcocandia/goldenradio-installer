@@ -41,20 +41,32 @@
             color: var(--accent);
         }
 
+        /* Stile unificato per i pulsanti */
         .btn {
             background-color: var(--accent);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 0;
+            /* Padding verticale */
+            width: 280px;
+            /* Larghezza fissa per renderli uguali */
+            border-radius: 6px;
             font-size: 16px;
+            /* Dimensione testo uguale */
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
             display: inline-block;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
         }
 
         .btn-db {
             background-color: var(--success);
+            margin-top: 10px;
         }
 
         .btn:disabled {
@@ -71,6 +83,22 @@
 
         esp-web-install-button {
             margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .links {
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        .links a {
+            color: var(--accent);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -83,20 +111,24 @@
         <h1><span>GOLDENRADIO</span> Installer</h1>
 
         <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
-            <h3>Installazione Firmware</h3>
-            <p>Usa questo pulsante per installare o aggiornare il sistema operativo della radio</p>
-            <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+            <h3>Firmware Installation</h3>
+            <p>Use this button to install or update the radio operating system</p>
+            <!-- Usiamo lo slot "activate" per applicare il nostro stile .btn -->
+            <esp-web-install-button manifest="manifest.json">
+                <button slot="activate" class="btn">INSTALL FIRMWARE</button>
+            </esp-web-install-button>
         </div>
 
         <div>
-            <h3>Aggiornamento Database EIBI</h3>
-            <p>Usa questo pulsante per installare o aggiornare la lista stazioni dal database EIBI</p>
-            <button id="btnUpdateDB" class="btn btn-db">AGGIORNA DATABASE</button>
+            <h3>EIBI Database Update</h3>
+            <p>Use this button to install or update the station list from the EIBI database</p>
+            <button id="btnUpdateDB" class="btn btn-db">UPDATE DATABASE</button>
             <div id="statusLog" class="log"></div>
         </div>
 
-        <div style="margin-top: 30px; font-size: 0.8em;">
-            <a href="https://www.golden-radio.com" style="color: var(--accent);">Sito Ufficiale</a>
+        <div class="links">
+            <a href="https://www.golden-radio.com" target="_blank">Official Website</a> |
+            <a href="https://www.golden-radio.com/guida-installazione" target="_blank">Installation Guide</a>
         </div>
     </div>
 
@@ -110,19 +142,19 @@
 
         btnUpdate.addEventListener('click', async () => {
             if (!navigator.serial) {
-                alert("Il tuo browser non supporta la Web Serial API. Usa Chrome o Edge.");
+                alert("Your browser does not support the Web Serial API. Please use Chrome or Edge.");
                 return;
             }
 
             try {
-                log("Scaricamento Database EIBI...");
+                log("Downloading EIBI Database...");
                 const response = await fetch('db/EIBI.DAT');
-                if (!response.ok) throw new Error("Impossibile scaricare EIBI.DAT");
+                if (!response.ok) throw new Error("Unable to download EIBI.DAT");
                 const blob = await response.blob();
                 const arrayBuffer = await blob.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
 
-                log("Seleziona la porta della radio...");
+                log("Select the radio port...");
                 const port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
 
@@ -131,80 +163,74 @@
                 const encoder = new TextEncoder();
                 const decoder = new TextDecoder();
 
-                // 1. Invia Comando
-                log("Avvio richiesta...");
+                // 1. Send Command
+                log("Starting request...");
                 const cmd = `UPLOAD_EIBI ${data.length}\n`;
                 await writer.write(encoder.encode(cmd));
 
-                // 2. Attesa rigorosa di OK_READY
-                log("In attesa della radio...");
+                // 2. Strict Wait for OK_READY
+                log("Waiting for radio...");
                 let readyReceived = false;
                 while (!readyReceived) {
                     const { value, done } = await reader.read();
-                    if (done) throw new Error("Connessione persa");
+                    if (done) throw new Error("Connection lost");
                     const text = decoder.decode(value);
                     if (text.includes("OK_READY")) readyReceived = true;
                 }
-                log("Radio pronta! Inizio invio dati...");
+                log("Radio ready! Starting data transfer...");
 
-                // 3. Invia Dati con HANDSHAKE INTELLIGENTE
+                // 3. Send Data with SMART HANDSHAKE
                 const CHUNK_SIZE = 256;
-                let finalDoneSeen = false; // Variabile memoria per il messaggio finale
+                let finalDoneSeen = false; // Memory variable for the final message
 
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = data.slice(i, i + CHUNK_SIZE);
                     await writer.write(chunk);
 
-                    // Attesa conferma 'K'
+                    // Wait for confirmation 'K'
                     let ackReceived = false;
                     while (!ackReceived) {
                         const { value, done } = await reader.read();
-                        if (done) throw new Error("Connessione persa");
+                        if (done) throw new Error("Connection lost during update");
                         const text = decoder.decode(value);
 
-                        // Controllo ACK
+                        // Check ACK
                         if (text.includes('K')) {
                             ackReceived = true;
                         }
 
-                        // --- FIX CRITICO: CATTURA ANTICIPATA DI OK_DONE ---
-                        // Se la radio manda "K" e "OK_DONE" insieme, lo segniamo qui
+                        // --- CRITICAL FIX: EARLY CATCH OF OK_DONE ---
                         if (text.includes("OK_DONE")) {
                             finalDoneSeen = true;
                         }
 
-                        if (text.includes("ERROR")) throw new Error("Radio Error: " + text);
+                        if (text.includes("ERROR")) throw new Error("Radio reported Error: " + text);
                     }
 
                     const percent = Math.round(((i + chunk.length) / data.length) * 100);
-                    log(`Trasferimento: ${percent}%`);
+                    log(`Transfer: ${percent}%`);
                 }
 
-                log("Verifica completamento...");
+                log("Verifying completion...");
 
-                // 4. Attesa Finale con ACCUMULATORE
-                // Se non abbiamo già visto "OK_DONE" durante l'invio...
+                // 4. Final Wait with ACCUMULATOR
+                // If we haven't seen "OK_DONE" during transmission...
                 if (!finalDoneSeen) {
-                    let finalBuffer = ""; // Accumula i pezzi di testo
+                    let finalBuffer = ""; // Accumulate text chunks
 
                     while (true) {
-                        // Leggiamo dalla seriale
                         const { value, done } = await reader.read();
-
-                        // Se la connessione si chiude (la radio si riavvia), usciamo
                         if (done) break;
 
-                        // Aggiungiamo il nuovo testo al buffer
                         finalBuffer += decoder.decode(value);
 
-                        // Controlliamo nel buffer accumulato
                         if (finalBuffer.includes("OK_DONE")) {
-                            break; // Trovato!
+                            break; // Found!
                         }
                     }
                 }
 
-                log("AGGIORNAMENTO COMPLETATO CON SUCCESSO! La radio si riavvierà.");
+                log("UPDATE COMPLETED SUCCESSFULLY! The radio will restart.");
 
                 writer.releaseLock();
                 reader.releaseLock();
@@ -212,7 +238,7 @@
 
             } catch (err) {
                 console.error(err);
-                log("ERRORE: " + err.message);
+                log("ERROR: " + err.message);
             }
         });
     </script>
