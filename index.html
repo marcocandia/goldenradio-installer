@@ -116,7 +116,6 @@
 
             try {
                 log("Scaricamento Database EIBI...");
-                // Scarica il file .DAT dal repository
                 const response = await fetch('db/EIBI.DAT');
                 if (!response.ok) throw new Error("Impossibile scaricare EIBI.DAT");
                 const blob = await response.blob();
@@ -132,17 +131,6 @@
                 const encoder = new TextEncoder();
                 const decoder = new TextDecoder();
 
-                // Funzione per leggere risposta
-                async function readLine() {
-                    let buffer = "";
-                    while (true) {
-                        const { value, done } = await reader.read();
-                        if (done) break;
-                        buffer += decoder.decode(value);
-                        if (buffer.includes("\n")) return buffer.trim();
-                    }
-                }
-
                 // 1. Invia Comando
                 log("Avvio richiesta...");
                 const cmd = `UPLOAD_EIBI ${data.length}\n`;
@@ -155,64 +143,55 @@
                     const { value, done } = await reader.read();
                     if (done) throw new Error("Connessione persa");
                     const text = decoder.decode(value);
-
-                    // Ignoriamo eventuali echo o sporcizia, cerchiamo la parola magica
-                    if (text.includes("OK_READY")) {
-                        readyReceived = true;
-                    }
+                    if (text.includes("OK_READY")) readyReceived = true;
                 }
                 log("Radio pronta! Inizio invio dati...");
 
-
-                // 3. Invia Dati con HANDSHAKE (Sincrono)
-                const CHUNK_SIZE = 256; // Deve corrispondere al buffer della radio per efficienza
+                // 3. Invia Dati con HANDSHAKE INTELLIGENTE
+                const CHUNK_SIZE = 256;
+                let finalDoneSeen = false; // Variabile memoria per il messaggio finale
 
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = data.slice(i, i + CHUNK_SIZE);
-
-                    // Invia il pacchetto
                     await writer.write(chunk);
 
-                    // --- ATTESA CONFERMA (Handshake) ---
-                    // Aspettiamo che la radio risponda 'K' prima di proseguire.
+                    // Attesa conferma 'K'
                     let ackReceived = false;
                     while (!ackReceived) {
                         const { value, done } = await reader.read();
-                        if (done) throw new Error("Connessione persa durante l'aggiornamento");
-
+                        if (done) throw new Error("Connessione persa");
                         const text = decoder.decode(value);
 
+                        // Controllo ACK
                         if (text.includes('K')) {
                             ackReceived = true;
                         }
-                        if (text.includes("ERROR")) {
-                            throw new Error("Errore segnalato dalla radio: " + text);
+
+                        // --- FIX CRITICO: CATTURA ANTICIPATA DI OK_DONE ---
+                        // Se la radio manda "K" e "OK_DONE" insieme, lo segniamo qui
+                        if (text.includes("OK_DONE")) {
+                            finalDoneSeen = true;
                         }
+
+                        if (text.includes("ERROR")) throw new Error("Radio Error: " + text);
                     }
-                    // -----------------------------------
 
                     const percent = Math.round(((i + chunk.length) / data.length) * 100);
                     log(`Trasferimento: ${percent}%`);
                 }
 
-                log("Finalizzazione... Attesa conferma scrittura su disco...");
+                log("Verifica completamento...");
 
-                // --- ATTESA CONFERMA FINALE (Con Accumulatore) ---
-                let responseBuffer = ""; // Buffer per accumulare il testo
-
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-
-                    // Aggiungiamo il nuovo pezzo al buffer esistente
-                    responseBuffer += decoder.decode(value);
-
-                    // Controlliamo dentro il buffer completo
-                    if (responseBuffer.includes("OK_DONE")) {
-                        break; // Trovato!
+                // 4. Attesa Finale
+                // Se non abbiamo già visto "OK_DONE" nei pacchetti precedenti, aspettiamo ora.
+                if (!finalDoneSeen) {
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        const text = decoder.decode(value);
+                        if (text.includes("OK_DONE")) break;
                     }
                 }
-                // -------------------------------------------------
 
                 log("AGGIORNAMENTO COMPLETATO CON SUCCESSO! La radio si riavvierà.");
 
