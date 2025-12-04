@@ -48,7 +48,7 @@ def create_binary_db():
                     
                     # FILTRO: Ignoriamo VLF (< 100 kHz) e frequenze assurde (> 30 MHz)
                     # Questo rimuove i sottomarini e tiene solo le radio ascoltabili
-                    if freq_khz < 10 or freq_khz > 30000: continue
+                    if freq_khz < 150 or freq_khz > 30000: continue
 
                     # 2. Orario
                     time_raw = row[COL_TIME]
