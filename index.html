@@ -78,19 +78,19 @@
 <body>
 
     <div class="container">
-        <img src="screenshot/PAGINAMAIN.png" alt="Radio" style="width: 100%; border-radius: 8px; margin-bottom: 20px;">
-
+        <img src="screenshot/PAGINAMAIN.png" alt="Radio"
+            style="width: 50%; display: block; margin: 0 auto 20px auto; border-radius: 8px;">
         <h1><span>GOLDENRADIO</span> Installer</h1>
 
         <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
-            <h3>1. Installazione Firmware</h3>
-            <p>Usa questo pulsante per installare o aggiornare il sistema operativo della radio.</p>
+            <h3>Installazione Firmware</h3>
+            <p>Usa questo pulsante per installare o aggiornare il sistema operativo della radio</p>
             <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
         </div>
 
         <div>
-            <h3>2. Aggiornamento Database EIBI</h3>
-            <p>Usa questo pulsante per aggiornare solo la lista stazioni (EIBI.DAT) senza cancellare le tue memorie.</p>
+            <h3>Aggiornamento Database EIBI</h3>
+            <p>Usa questo pulsante per installare o aggiornare la lista stazioni dal database EIBI</p>
             <button id="btnUpdateDB" class="btn btn-db">AGGIORNA DATABASE</button>
             <div id="statusLog" class="log"></div>
         </div>
