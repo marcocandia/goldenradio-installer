@@ -197,20 +197,25 @@
 
                 log("Finalizzazione... Attesa conferma scrittura su disco...");
 
-                // --- ATTESA CONFERMA FINALE ---
-                // Aspettiamo che la radio chiuda il file e ci dia l'ok
+                // --- ATTESA CONFERMA FINALE (Con Accumulatore) ---
+                let responseBuffer = ""; // Buffer per accumulare il testo
+
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
-                    const text = decoder.decode(value);
-                    if (text.includes("OK_DONE")) {
-                        break; // La radio ha confermato!
+
+                    // Aggiungiamo il nuovo pezzo al buffer esistente
+                    responseBuffer += decoder.decode(value);
+
+                    // Controlliamo dentro il buffer completo
+                    if (responseBuffer.includes("OK_DONE")) {
+                        break; // Trovato!
                     }
                 }
+                // -------------------------------------------------
 
                 log("AGGIORNAMENTO COMPLETATO CON SUCCESSO! La radio si riavvierà.");
 
-                // Chiusura pulita della connessione (OBBLIGATORIO)
                 writer.releaseLock();
                 reader.releaseLock();
                 await port.close();
