@@ -182,14 +182,25 @@
 
                 log("Verifica completamento...");
 
-                // 4. Attesa Finale
-                // Se non abbiamo già visto "OK_DONE" nei pacchetti precedenti, aspettiamo ora.
+                // 4. Attesa Finale con ACCUMULATORE
+                // Se non abbiamo già visto "OK_DONE" durante l'invio...
                 if (!finalDoneSeen) {
+                    let finalBuffer = ""; // Accumula i pezzi di testo
+
                     while (true) {
+                        // Leggiamo dalla seriale
                         const { value, done } = await reader.read();
+
+                        // Se la connessione si chiude (la radio si riavvia), usciamo
                         if (done) break;
-                        const text = decoder.decode(value);
-                        if (text.includes("OK_DONE")) break;
+
+                        // Aggiungiamo il nuovo testo al buffer
+                        finalBuffer += decoder.decode(value);
+
+                        // Controlliamo nel buffer accumulato
+                        if (finalBuffer.includes("OK_DONE")) {
+                            break; // Trovato!
+                        }
                     }
                 }
 
