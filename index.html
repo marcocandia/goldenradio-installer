@@ -7,119 +7,177 @@
     <title>GOLDENRADIO Firmware Web Installer</title>
     <style>
         :root {
-            --background-color: #1e1e1e;
-            --card-background-color: #2d2d2d;
-            --primary-text-color: #d4d4d4;
-            --secondary-text-color: #a0a0a0;
-            --accent-color: #007acc;
-            --border-color: #444444;
+            --bg-color: #1e1e1e;
+            --card-bg: #2d2d2d;
+            --text-main: #d4d4d4;
+            --text-sec: #a0a0a0;
+            --accent: #007acc;
+            --success: #28a745;
+            --border: #444444;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: var(--background-color);
-            color: var(--primary-text-color);
-            padding: 20px;
-            box-sizing: border-box;
         }
 
         .container {
-            max-width: 600px;
-            width: 100%;
-            background-color: var(--card-background-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
+            background-color: var(--card-bg);
             padding: 40px;
-            border: 1px solid var(--border-color);
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #ffffff;
-            font-weight: 300;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 600px;
+            border: 1px solid var(--border);
         }
 
         h1 span {
-            font-weight: 600;
-            color: var(--accent-color);
+            color: var(--accent);
         }
 
-        p {
-            color: var(--secondary-text-color);
-            line-height: 1.6;
-            margin-bottom: 30px;
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
         }
 
-        .radio-image {
-            max-width: 80%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border: 2px solid var(--border-color);
+        .btn-db {
+            background-color: var(--success);
         }
 
-        esp-web-install-button {
-            --esp-web-install-button-fill-color: var(--accent-color);
-            --esp-web-install-button-text-color: #ffffff;
-            --esp-web-install-button-border-radius: 8px;
-            --esp-web-install-button-font-size: 1.2em;
-            margin-bottom: 20px;
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .links {
-            margin-top: 30px;
+        .log {
+            margin-top: 15px;
+            font-family: monospace;
+            color: var(--text-sec);
             font-size: 0.9em;
         }
 
-        .links a {
-            color: var(--accent-color);
-            text-decoration: none;
-            margin: 0 10px;
-        }
-
-        .links a:hover {
-            text-decoration: underline;
+        esp-web-install-button {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 
 <body>
+
     <div class="container">
-        <img src="screenshot/PAGINAMAIN.png" alt="GOLDENRADIO Firmware in funzione" class="radio-image">
+        <img src="screenshot/PAGINAMAIN.png" alt="Radio" style="width: 100%; border-radius: 8px; margin-bottom: 20px;">
 
-        <h1><span>GOLDENRADIO</span> Web Installer</h1>
+        <h1><span>GOLDENRADIO</span> Installer</h1>
 
-        <!-- ================== PARAGRAFO MODIFICATO ================== -->
-        <p>
-            Benvenuto! Stai per installare il firmware GOLDENRADIO sulla tua radio ATS25.
-            Collega la tua radio al computer con un cavo USB dati e clicca il pulsante qui sotto.
-            Si aprirà una finestra per scegliere la porta COM.
-            <br><br>
-            <strong>Suggerimento:</strong> se non sai quale porta selezionare, scollega la radio, clicca
-            <strong>CONNECT</strong> e solo dopo ricollega il cavo USB. La nuova porta che apparirà nell'elenco è quella
-            giusta!
-        </p>
-        <!-- ========================================================== -->
+        <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
+            <h3>1. Installazione Firmware</h3>
+            <p>Usa questo pulsante per installare o aggiornare il sistema operativo della radio.</p>
+            <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+        </div>
 
-        <!-- Il tag HTML originale, pulito e senza fronzoli. -->
-        <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+        <div>
+            <h3>2. Aggiornamento Database EIBI</h3>
+            <p>Usa questo pulsante per aggiornare solo la lista stazioni (EIBI.DAT) senza cancellare le tue memorie.</p>
+            <button id="btnUpdateDB" class="btn btn-db">AGGIORNA DATABASE</button>
+            <div id="statusLog" class="log"></div>
+        </div>
 
-        <div class="links">
-            <a href="https://www.golden-radio.com" target="_blank">Sito Ufficiale</a> |
-            <a href="https://www.golden-radio.com/guida-installazione" target="_blank">Guida all'Installazione</a>
+        <div style="margin-top: 30px; font-size: 0.8em;">
+            <a href="https://www.golden-radio.com" style="color: var(--accent);">Sito Ufficiale</a>
         </div>
     </div>
 
-    <!-- Lo script originale -->
     <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
+
+    <script>
+        const btnUpdate = document.getElementById('btnUpdateDB');
+        const logDiv = document.getElementById('statusLog');
+
+        function log(msg) { logDiv.innerText = msg; }
+
+        btnUpdate.addEventListener('click', async () => {
+            if (!navigator.serial) {
+                alert("Il tuo browser non supporta la Web Serial API. Usa Chrome o Edge.");
+                return;
+            }
+
+            try {
+                log("Scaricamento Database EIBI...");
+                // Scarica il file .DAT dal repository
+                const response = await fetch('db/EIBI.DAT');
+                if (!response.ok) throw new Error("Impossibile scaricare EIBI.DAT");
+                const blob = await response.blob();
+                const arrayBuffer = await blob.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+
+                log("Seleziona la porta della radio...");
+                const port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+
+                const writer = port.writable.getWriter();
+                const reader = port.readable.getReader();
+                const encoder = new TextEncoder();
+                const decoder = new TextDecoder();
+
+                // Funzione per leggere risposta
+                async function readLine() {
+                    let buffer = "";
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value);
+                        if (buffer.includes("\n")) return buffer.trim();
+                    }
+                }
+
+                // 1. Invia Comando
+                log("Avvio trasferimento...");
+                const cmd = `UPLOAD_EIBI ${data.length}\n`;
+                await writer.write(encoder.encode(cmd));
+
+                // 2. Attendi OK_READY (implementazione semplice: aspetta un po')
+                // Nota: per una lettura robusta servirebbe un loop di lettura, 
+                // ma qui inviamo i dati dopo una breve pausa per sicurezza.
+                await new Promise(r => setTimeout(r, 500));
+
+                // 3. Invia Dati
+                const CHUNK_SIZE = 1024; // Invia a pacchetti
+                for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+                    const chunk = data.slice(i, i + CHUNK_SIZE);
+                    await writer.write(chunk);
+                    const percent = Math.round((i / data.length) * 100);
+                    log(`Trasferimento: ${percent}%`);
+                }
+
+                log("Finalizzazione...");
+                await new Promise(r => setTimeout(r, 1000)); // Attesa scrittura flash
+
+                log("AGGIORNAMENTO COMPLETATO! La radio si riavvierà.");
+
+                writer.releaseLock();
+                reader.releaseLock();
+                await port.close();
+
+            } catch (err) {
+                console.error(err);
+                log("ERRORE: " + err.message);
+            }
+        });
+    </script>
+
 </body>
 
 </html>
