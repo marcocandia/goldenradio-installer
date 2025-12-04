@@ -153,14 +153,28 @@
                 // ma qui inviamo i dati dopo una breve pausa per sicurezza.
                 await new Promise(r => setTimeout(r, 500));
 
-                // 3. Invia Dati
-                const CHUNK_SIZE = 1024; // Invia a pacchetti
+                // // 3. Invia Dati versione VELOCE ma che non funziona
+                // const CHUNK_SIZE = 1024; // Invia a pacchetti
+                // for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+                //     const chunk = data.slice(i, i + CHUNK_SIZE);
+                //     await writer.write(chunk);
+                //     const percent = Math.round((i / data.length) * 100);
+                //     log(`Trasferimento: ${percent}%`);
+                // }
+
+                // 3. Invia Dati (Versione "Slow & Safe")
+                const CHUNK_SIZE = 256; // Riduciamo la dimensione del pacchetto (era 1024)
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = data.slice(i, i + CHUNK_SIZE);
                     await writer.write(chunk);
+                    // Calcola percentuale
                     const percent = Math.round((i / data.length) * 100);
-                    log(`Trasferimento: ${percent}%`);
+                    log(`Trasferimento: ${percent}% (${i} / ${data.length})`);
+                    // --- MODIFICA FONDAMENTALE: PAUSA RESPIRATORIA ---
+                    // Diamo 20ms alla radio per scrivere sulla Flash prima di inviare il prossimo pacchetto
+                    await new Promise(r => setTimeout(r, 20));
                 }
+
 
                 log("Finalizzazione...");
                 await new Promise(r => setTimeout(r, 1000)); // Attesa scrittura flash
