@@ -1,21 +1,21 @@
 import csv
 import struct
 import os
-import sys
 
 # === CONFIGURAZIONE ===
 INPUT_FILENAME = 'sked-b25.csv'
 OUTPUT_FILENAME = 'EIBI.DAT'
 STATION_NAME_LEN = 20
 
-# --- NUOVA MAPPATURA COLONNE ---
-COL_FREQ = 0    
-COL_TIME = 1    
-COL_NAME = 4    
+# Mappatura Colonne (EIBI Standard: A=0, B=1, etc.)
+COL_FREQ = 0    # kHz
+COL_TIME = 1    # Time
+COL_NAME = 4    # Station (Colonna E)
 
 def time_to_minutes(hhmm_str):
     try:
         hhmm_str = hhmm_str.strip()
+        if not hhmm_str: return 0
         hh = int(hhmm_str[0:2])
         mm = int(hhmm_str[2:4])
         return hh * 60 + mm
@@ -23,37 +23,34 @@ def time_to_minutes(hhmm_str):
         return 0
 
 def create_binary_db():
-    # --- MAGIA PER TROVARE IL PERCORSO GIUSTO ---
-    # Trova la cartella dove risiede fisicamente questo script .py
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Crea i percorsi completi unendo la cartella al nome del file
     full_input_path = os.path.join(script_dir, INPUT_FILENAME)
     full_output_path = os.path.join(script_dir, OUTPUT_FILENAME)
 
-    print(f"\n--- ELABORAZIONE ---")
-    print(f"Cerco il file qui: {full_input_path}")
+    print(f"\n--- CONVERTITORE EIBI GOLDENRADIO ---")
     
     records = []
     
     try:
-        # Usiamo full_input_path invece del nome breve
-        with open(full_input_path, mode='r', encoding='latin-1', errors='ignore') as csvfile:
+        with open(full_input_path, mode='r', encoding='latin-1', errors='replace') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
             
             for row in reader:
-                if not row or len(row) <= COL_NAME:
-                    continue
+                # Salta righe vuote o troppo corte
+                if not row or len(row) <= COL_NAME: continue
                 
                 try:
+                    # 1. Frequenza
                     freq_raw = row[COL_FREQ]
-                    if "kHz" in str(freq_raw): continue 
+                    if "kHz" in str(freq_raw): continue # Salta l'intestazione
                     
                     freq_khz = int(float(freq_raw))
                     
-                    if freq_khz <= 0 or freq_khz > 30000:
-                        continue
+                    # FILTRO: Ignoriamo VLF (< 100 kHz) e frequenze assurde (> 30 MHz)
+                    # Questo rimuove i sottomarini e tiene solo le radio ascoltabili
+                    if freq_khz < 100 or freq_khz > 30000: continue
 
+                    # 2. Orario
                     time_raw = row[COL_TIME]
                     if '-' in time_raw:
                         parts = time_raw.split('-')
@@ -63,9 +60,14 @@ def create_binary_db():
                         t_start = 0
                         t_end = 1440 
 
+                    # 3. Nome Stazione (Colonna 4!)
                     station_name = row[COL_NAME]
-                    clean_name = station_name.encode('ascii', 'ignore').decode('ascii')
                     
+                    # Pulizia nome: convertiamo in ASCII puro per evitare caratteri strani sul display
+                    clean_name = station_name.encode('ascii', 'ignore').decode('ascii').strip()
+                    
+                    if not clean_name: clean_name = "Unknown"
+
                     records.append({
                         'freq': freq_khz,
                         'start': t_start,
@@ -76,32 +78,35 @@ def create_binary_db():
                 except ValueError:
                     continue
 
-        print(f"Trovati {len(records)} record validi. Ordinamento...")
+        # Ordina per frequenza (FONDAMENTALE per la ricerca binaria o sequenziale)
         records.sort(key=lambda x: x['freq'])
 
-        print(f"Scrittura di {OUTPUT_FILENAME}...")
-        # Usiamo full_output_path
+        print(f"Trovate {len(records)} stazioni valide (filtrate > 100kHz).")
+        print(f"Scrittura file binario...")
+
         with open(full_output_path, 'wb') as binfile:
             for rec in records:
-                name_bytes = rec['name'].ljust(STATION_NAME_LEN)[:STATION_NAME_LEN].encode('utf-8')
+                # Prepara il nome: max 20 caratteri
+                name_bytes = rec['name'].encode('utf-8')[:STATION_NAME_LEN]
+                
+                # CORREZIONE FONDAMENTALE: Padding con NULL (\x00) invece di spazi
+                # Questo assicura che il C++ legga la stringa e si fermi al punto giusto
+                name_padded = name_bytes.ljust(STATION_NAME_LEN, b'\x00')
+                
+                # Pack: H (2 byte freq), H (2 byte start), H (2 byte end), 20s (20 byte nome)
                 binary_data = struct.pack('<HHH20s', 
                                           rec['freq'], 
                                           rec['start'], 
                                           rec['end'], 
-                                          name_bytes)
+                                          name_padded)
                 binfile.write(binary_data)
 
         print(f"--- COMPLETATO ---")
-        print(f"File creato in: {full_output_path}")
+        print(f"File creato: {OUTPUT_FILENAME}")
         print(f"Dimensione: {os.path.getsize(full_output_path)} bytes")
-        
-        print("\nEsempio primi 3 record generati:")
-        for i in range(min(3, len(records))):
-            print(f"Freq: {records[i]['freq']} | Nome: {records[i]['name']}")
 
     except FileNotFoundError:
-        print(f"\nERRORE CRITICO:\nIl file non è stato trovato in:\n{full_input_path}")
-        print("\nAssicurati che 'sked-b25.csv' sia nella stessa cartella dello script.")
+        print(f"ERRORE: File {INPUT_FILENAME} non trovato.")
 
 if __name__ == "__main__":
     create_binary_db()
