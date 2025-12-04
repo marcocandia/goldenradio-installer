@@ -153,34 +153,54 @@
                 // ma qui inviamo i dati dopo una breve pausa per sicurezza.
                 await new Promise(r => setTimeout(r, 500));
 
-                // // 3. Invia Dati versione VELOCE ma che non funziona
-                // const CHUNK_SIZE = 1024; // Invia a pacchetti
-                // for (let i = 0; i < data.length; i += CHUNK_SIZE) {
-                //     const chunk = data.slice(i, i + CHUNK_SIZE);
-                //     await writer.write(chunk);
-                //     const percent = Math.round((i / data.length) * 100);
-                //     log(`Trasferimento: ${percent}%`);
-                // }
 
-                // 3. Invia Dati (Versione "Slow & Safe")
-                const CHUNK_SIZE = 256; // Riduciamo la dimensione del pacchetto (era 1024)
+                // 3. Invia Dati con HANDSHAKE (Sincrono)
+                const CHUNK_SIZE = 256; // Deve corrispondere al buffer della radio per efficienza
+
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = data.slice(i, i + CHUNK_SIZE);
+
+                    // Invia il pacchetto
                     await writer.write(chunk);
-                    // Calcola percentuale
-                    const percent = Math.round((i / data.length) * 100);
-                    log(`Trasferimento: ${percent}% (${i} / ${data.length})`);
-                    // --- MODIFICA FONDAMENTALE: PAUSA RESPIRATORIA ---
-                    // Diamo 20ms alla radio per scrivere sulla Flash prima di inviare il prossimo pacchetto
-                    await new Promise(r => setTimeout(r, 20));
+
+                    // --- ATTESA CONFERMA (Handshake) ---
+                    // Aspettiamo che la radio risponda 'K' prima di proseguire.
+                    let ackReceived = false;
+                    while (!ackReceived) {
+                        const { value, done } = await reader.read();
+                        if (done) throw new Error("Connessione persa durante l'aggiornamento");
+
+                        const text = decoder.decode(value);
+
+                        if (text.includes('K')) {
+                            ackReceived = true;
+                        }
+                        if (text.includes("ERROR")) {
+                            throw new Error("Errore segnalato dalla radio: " + text);
+                        }
+                    }
+                    // -----------------------------------
+
+                    const percent = Math.round(((i + chunk.length) / data.length) * 100);
+                    log(`Trasferimento: ${percent}%`);
                 }
 
+                log("Finalizzazione... Attesa conferma scrittura su disco...");
 
-                log("Finalizzazione...");
-                await new Promise(r => setTimeout(r, 1000)); // Attesa scrittura flash
+                // --- ATTESA CONFERMA FINALE ---
+                // Aspettiamo che la radio chiuda il file e ci dia l'ok
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    const text = decoder.decode(value);
+                    if (text.includes("OK_DONE")) {
+                        break; // La radio ha confermato!
+                    }
+                }
 
-                log("AGGIORNAMENTO COMPLETATO! La radio si riavvierà.");
+                log("AGGIORNAMENTO COMPLETATO CON SUCCESSO! La radio si riavvierà.");
 
+                // Chiusura pulita della connessione (OBBLIGATORIO)
                 writer.releaseLock();
                 reader.releaseLock();
                 await port.close();
