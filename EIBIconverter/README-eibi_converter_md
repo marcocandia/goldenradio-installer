@@ -16,6 +16,11 @@ Per verificare che il file sia scritto bene:
 ### 3.  python verify_eibi.py
 
 
+Copia 'EIBI.DAT' nella cartella 'db' di goldenradio-installer e se vuoi nella cartella 'data' di "progetto GOLDENRADIO"
+
+
+
+
 
 --- ELABORAZIONE sked-b25.csv ---
 Ordinamento dei dati per frequenza...

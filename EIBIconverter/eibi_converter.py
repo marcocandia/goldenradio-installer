@@ -5,7 +5,7 @@ import os
 # === CONFIGURAZIONE ===
 INPUT_FILENAME = 'sked-b25.csv'
 OUTPUT_FILENAME = 'EIBI.DAT'
-STATION_NAME_LEN = 20
+STATION_NAME_LEN = 24
 
 # Mappatura Colonne (EIBI Standard: A=0, B=1, etc.)
 COL_FREQ = 0    # kHz
@@ -93,8 +93,9 @@ def create_binary_db():
                 # Questo assicura che il C++ legga la stringa e si fermi al punto giusto
                 name_padded = name_bytes.ljust(STATION_NAME_LEN, b'\x00')
                 
-                # Pack: H (2 byte freq), H (2 byte start), H (2 byte end), 20s (20 byte nome)
-                binary_data = struct.pack('<HHH20s', 
+                # Pack: H (2 byte freq), H (2 byte start), H (2 byte end), 24s (24 byte nome)
+                # Totale = 2+2+2 + 24 = 30 byte per record
+                binary_data = struct.pack('<HHH24s', 
                                           rec['freq'], 
                                           rec['start'], 
                                           rec['end'], 
