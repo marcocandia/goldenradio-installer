@@ -108,7 +108,10 @@
     <div class="container">
         <img src="screenshot/PAGINAMAIN.png" alt="Radio"
             style="width: 50%; display: block; margin: 0 auto 20px auto; border-radius: 8px;">
-        <h1><span>GOLDENRADIO</span> Installer</h1>
+        <h1>
+            <span>GOLDENRADIO</span> Installer
+            <span id="versionLabel" style="font-size: 0.5em; color: var(--text-sec); vertical-align: middle;"></span>
+        </h1>
 
         <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
             <h3>Firmware Installation</h3>
@@ -274,6 +277,31 @@
             }
         });
     </script>
+
+    <!-- Script per leggere la versione dal manifest.json -->
+    <script>
+        async function fetchVersion() {
+            try {
+                // Legge il file manifest.json che si trova nella stessa cartella
+                const response = await fetch('manifest.json');
+                if (!response.ok) return;
+
+                const data = await response.json();
+
+                // Cerca l'elemento HTML e scrive la versione
+                const versionSpan = document.getElementById('versionLabel');
+                if (versionSpan && data.version) {
+                    versionSpan.innerText = 'v' + data.version;
+                }
+            } catch (error) {
+                console.log("Impossibile leggere la versione dal manifest");
+            }
+        }
+
+        // Avvia la funzione appena la pagina è caricata
+        fetchVersion();
+    </script>
+
 
 </body>
 
