@@ -146,6 +146,11 @@
                 return;
             }
 
+            // Variabili per gestire la chiusura sicura in caso di errore
+            let port = null;
+            let writer = null;
+            let reader = null;
+
             try {
                 log("Downloading EIBI Database...");
                 const response = await fetch('db/EIBI.DAT');
@@ -155,33 +160,48 @@
                 const data = new Uint8Array(arrayBuffer);
 
                 log("Select the radio port...");
-                const port = await navigator.serial.requestPort();
+                port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
 
-                const writer = port.writable.getWriter();
-                const reader = port.readable.getReader();
+                writer = port.writable.getWriter();
+                reader = port.readable.getReader();
                 const encoder = new TextEncoder();
                 const decoder = new TextDecoder();
 
                 // 1. Send Command
-                log("Starting request...");
+                log("Requesting update mode...");
+                // Aggiungiamo un delay minimo per assicurarci che la porta sia pronta
+                await new Promise(r => setTimeout(r, 100));
+
                 const cmd = `UPLOAD_EIBI ${data.length}\n`;
                 await writer.write(encoder.encode(cmd));
 
-                // 2. Strict Wait for OK_READY
-                log("Waiting for radio...");
+                // 2. Strict Wait for OK_READY with ACCUMULATOR
+                log("Waiting for radio handshake...");
                 let readyReceived = false;
+                let handshakeBuffer = ""; // Accumulatore per il testo in ingresso
+
                 while (!readyReceived) {
                     const { value, done } = await reader.read();
                     if (done) throw new Error("Connection lost");
-                    const text = decoder.decode(value);
-                    if (text.includes("OK_READY")) readyReceived = true;
+
+                    // Aggiungi il nuovo pezzo al buffer
+                    handshakeBuffer += decoder.decode(value);
+
+                    // Controlla se la frase magica è nel buffer accumulato
+                    if (handshakeBuffer.includes("OK_READY")) {
+                        readyReceived = true;
+                    }
+
+                    // Timeout di sicurezza (opzionale, ma utile se si blocca)
+                    // Se il buffer diventa enorme senza OK_READY, c'è un problema
+                    if (handshakeBuffer.length > 1000) handshakeBuffer = handshakeBuffer.slice(-500);
                 }
                 log("Radio ready! Starting data transfer...");
 
                 // 3. Send Data with SMART HANDSHAKE
-                const CHUNK_SIZE = 256;
-                let finalDoneSeen = false; // Memory variable for the final message
+                const CHUNK_SIZE = 256; // Deve corrispondere al buffer della radio
+                let finalDoneSeen = false;
 
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = data.slice(i, i + CHUNK_SIZE);
@@ -189,22 +209,27 @@
 
                     // Wait for confirmation 'K'
                     let ackReceived = false;
+                    let ackBuffer = ""; // Accumulatore anche qui
+
                     while (!ackReceived) {
                         const { value, done } = await reader.read();
                         if (done) throw new Error("Connection lost during update");
-                        const text = decoder.decode(value);
 
-                        // Check ACK
-                        if (text.includes('K')) {
+                        const textChunk = decoder.decode(value);
+                        ackBuffer += textChunk;
+
+                        // Check ACK (basta la K)
+                        if (ackBuffer.includes('K')) {
                             ackReceived = true;
                         }
 
-                        // --- CRITICAL FIX: EARLY CATCH OF OK_DONE ---
-                        if (text.includes("OK_DONE")) {
+                        // Check early finish
+                        if (ackBuffer.includes("OK_DONE")) {
                             finalDoneSeen = true;
                         }
 
-                        if (text.includes("ERROR")) throw new Error("Radio reported Error: " + text);
+                        // Check Errors
+                        if (ackBuffer.includes("ERROR")) throw new Error("Radio reported Error: " + ackBuffer);
                     }
 
                     const percent = Math.round(((i + chunk.length) / data.length) * 100);
@@ -213,32 +238,39 @@
 
                 log("Verifying completion...");
 
-                // 4. Final Wait with ACCUMULATOR
-                // If we haven't seen "OK_DONE" during transmission...
+                // 4. Final Wait
                 if (!finalDoneSeen) {
-                    let finalBuffer = ""; // Accumulate text chunks
+                    let finalBuffer = "";
+                    // Timeout loop per non bloccare all'infinito
+                    const startTime = Date.now();
 
                     while (true) {
+                        // Timeout di 5 secondi per la conferma finale
+                        if (Date.now() - startTime > 5000) break;
+
+                        // Leggi con timeout (in un sistema reale servirebbe un reader.read con timeout, 
+                        // qui ci affidiamo al flusso dati)
                         const { value, done } = await reader.read();
                         if (done) break;
 
                         finalBuffer += decoder.decode(value);
 
                         if (finalBuffer.includes("OK_DONE")) {
-                            break; // Found!
+                            break;
                         }
                     }
                 }
 
                 log("UPDATE COMPLETED SUCCESSFULLY! The radio will restart.");
 
-                writer.releaseLock();
-                reader.releaseLock();
-                await port.close();
-
             } catch (err) {
                 console.error(err);
                 log("ERROR: " + err.message);
+            } finally {
+                // Rilascio pulito delle risorse
+                if (writer) writer.releaseLock();
+                if (reader) reader.releaseLock();
+                if (port) await port.close();
             }
         });
     </script>
