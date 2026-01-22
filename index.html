@@ -30,13 +30,13 @@
 
         /* --- NUOVO STILE SELETTORE LINGUA --- */
         .lang-switch {
-            position: absolute;
-            top: 20px;
-            right: 20px;
             display: flex;
             gap: 8px;
             z-index: 1000;
-            /* Assicura che stia sopra a tutto */
+            width: 100%;
+            /* Occupa la larghezza disponibile */
+            justify-content: center;
+            /* Centra i pulsanti orizzontalmente */
         }
 
         .lang-btn {
@@ -44,11 +44,13 @@
             color: var(--text-sec);
             border: 1px solid var(--border);
             border-radius: 4px;
-            padding: 6px 12px;
+            padding: 8px 16px;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
+            min-width: 50px;
+            /* Larghezza minima uniforme */
         }
 
         .lang-btn:hover {
