@@ -153,6 +153,8 @@
         <button class="lang-btn" onclick="setLanguage('it')" id="lang-it">IT</button>
         <button class="lang-btn" onclick="setLanguage('fr')" id="lang-fr">FR</button>
         <button class="lang-btn" onclick="setLanguage('de')" id="lang-de">DE</button>
+        <button class="lang-btn" onclick="setLanguage('ru')" id="lang-ru">RU</button>
+        <button class="lang-btn" onclick="setLanguage('zh')" id="lang-zh">CN</button>
     </div>
 
     <div class="container">
@@ -269,6 +271,44 @@
                 log_verify: "Überprüfung...",
                 log_success: "UPDATE ERFOLGREICH! Das Radio startet neu.",
                 log_error_browser: "Ihr Browser unterstützt Web Serial nicht. Nutzen Sie Chrome."
+            },
+            ru: {
+                title_installer: "Установщик",
+                fw_section_title: "Установка прошивки",
+                fw_section_desc: "Нажмите для установки или обновления ОС радиоприемника",
+                btn_install: "УСТАНОВИТЬ ПРОШИВКУ",
+                db_section_title: "Обновление базы EIBI",
+                db_section_desc: "Нажмите для обновления списка радиостанций",
+                btn_update_db: "ОБНОВИТЬ БАЗУ",
+                link_site: "Официальный сайт",
+                link_guide: "Инструкция",
+                log_downloading: "Загрузка базы EIBI...",
+                log_select_port: "Выберите порт радиоприемника...",
+                log_req_update: "Запрос режима обновления...",
+                log_waiting: "Ожидание ответа от радио...",
+                log_ready: "Радио готово! Передача данных...",
+                log_verify: "Проверка завершения...",
+                log_success: "ОБНОВЛЕНИЕ ЗАВЕРШЕНО! Радио перезагружается.",
+                log_error_browser: "Ваш браузер не поддерживает Web Serial. Используйте Chrome или Edge."
+            },
+            zh: {
+                title_installer: "安装程序",
+                fw_section_title: "固件安装",
+                fw_section_desc: "使用此按钮安装或更新收音机操作系统",
+                btn_install: "安装固件",
+                db_section_title: "EIBI 数据库更新",
+                db_section_desc: "使用此按钮更新电台列表",
+                btn_update_db: "更新数据库",
+                link_site: "官方网站",
+                link_guide: "安装指南",
+                log_downloading: "正在下载 EIBI 数据库...",
+                log_select_port: "请选择收音机端口...",
+                log_req_update: "请求更新模式...",
+                log_waiting: "等待收音机响应...",
+                log_ready: "收音机就绪! 开始传输数据...",
+                log_verify: "正在验证...",
+                log_success: "更新成功! 收音机正在重启。",
+                log_error_browser: "您的浏览器不支持 Web Serial API。请使用 Chrome 或 Edge。"
             }
         };
 
