@@ -21,11 +21,48 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
+
+        /* --- NUOVO STILE SELETTORE LINGUA --- */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+            /* Assicura che stia sopra a tutto */
+        }
+
+        .lang-btn {
+            background-color: #3e3e3e;
+            color: var(--text-sec);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover {
+            background-color: #4e4e4e;
+            color: #fff;
+        }
+
+        .lang-btn.active {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* --------------------- */
 
         .container {
             background-color: var(--card-bg);
@@ -34,25 +71,25 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-align: center;
             max-width: 600px;
+            width: 100%;
             border: 1px solid var(--border);
+            margin-top: 40px;
+            position: relative;
+            /* Per contesto */
         }
 
         h1 span {
             color: var(--accent);
         }
 
-        /* Stile unificato per i pulsanti */
         .btn {
             background-color: var(--accent);
             color: white;
             border: none;
             padding: 12px 0;
-            /* Padding verticale */
             width: 280px;
-            /* Larghezza fissa per renderli uguali */
             border-radius: 6px;
             font-size: 16px;
-            /* Dimensione testo uguale */
             font-weight: 600;
             cursor: pointer;
             display: inline-block;
@@ -79,6 +116,9 @@
             font-family: monospace;
             color: var(--text-sec);
             font-size: 0.9em;
+            min-height: 20px;
+            white-space: pre-wrap;
+            /* Mantiene a capo */
         }
 
         esp-web-install-button {
@@ -105,39 +145,179 @@
 
 <body>
 
+    <!-- SELETTORE LINGUA (TESTUALE) -->
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="setLanguage('en')" id="lang-en">EN</button>
+        <button class="lang-btn" onclick="setLanguage('it')" id="lang-it">IT</button>
+        <button class="lang-btn" onclick="setLanguage('fr')" id="lang-fr">FR</button>
+        <button class="lang-btn" onclick="setLanguage('de')" id="lang-de">DE</button>
+    </div>
+
     <div class="container">
-        <img src="screenshot/PAGINAMAIN.png" alt="Radio"
+        <!-- IMMAGINE RADIO (Assicurati che il file esista!) -->
+        <img src="screenshot/PAGINAMAIN.png" alt="Radio" onerror="this.style.display='none'"
             style="width: 50%; display: block; margin: 0 auto 20px auto; border-radius: 8px;">
+
         <h1>
-            <span>GOLDENRADIO</span> Installer
+            <span>GOLDENRADIO</span> <span data-i18n="title_installer">Installer</span>
             <span id="versionLabel" style="font-size: 0.5em; color: var(--text-sec); vertical-align: middle;"></span>
         </h1>
 
         <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
-            <h3>Firmware Installation</h3>
-            <p>Use this button to install or update the radio operating system</p>
-            <!-- Usiamo lo slot "activate" per applicare il nostro stile .btn -->
+            <h3 data-i18n="fw_section_title">Firmware Installation</h3>
+            <p data-i18n="fw_section_desc">Use this button to install or update the radio operating system</p>
+
             <esp-web-install-button manifest="manifest.json">
-                <button slot="activate" class="btn">INSTALL FIRMWARE</button>
+                <button slot="activate" class="btn" id="btnInstallFW" data-i18n="btn_install">INSTALL FIRMWARE</button>
             </esp-web-install-button>
         </div>
 
         <div>
-            <h3>EIBI Database Update</h3>
-            <p>Use this button to install or update the station list from the EIBI database</p>
-            <button id="btnUpdateDB" class="btn btn-db">UPDATE DATABASE</button>
+            <h3 data-i18n="db_section_title">EIBI Database Update</h3>
+            <p data-i18n="db_section_desc">Use this button to install or update the station list</p>
+            <button id="btnUpdateDB" class="btn btn-db" data-i18n="btn_update_db">UPDATE DATABASE</button>
             <div id="statusLog" class="log"></div>
         </div>
 
         <div class="links">
-            <a href="https://www.golden-radio.com" target="_blank">Official Website</a> |
-            <a href="https://www.golden-radio.com/guida-installazione" target="_blank">Installation Guide</a>
+            <a href="https://www.golden-radio.com" target="_blank" data-i18n="link_site">Official Website</a> |
+            <a href="https://www.golden-radio.com/guida-installazione" target="_blank"
+                data-i18n="link_guide">Installation Guide</a>
         </div>
     </div>
 
     <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
 
     <script>
+        // --- GESTIONE TRADUZIONI ---
+        const translations = {
+            en: {
+                title_installer: "Installer",
+                fw_section_title: "Firmware Installation",
+                fw_section_desc: "Use this button to install or update the radio operating system",
+                btn_install: "INSTALL FIRMWARE",
+                db_section_title: "EIBI Database Update",
+                db_section_desc: "Use this button to install or update the station list",
+                btn_update_db: "UPDATE DATABASE",
+                link_site: "Official Website",
+                link_guide: "Installation Guide",
+                // Status Messages
+                log_downloading: "Downloading EIBI Database...",
+                log_select_port: "Select the radio port...",
+                log_req_update: "Requesting update mode...",
+                log_waiting: "Waiting for radio handshake...",
+                log_ready: "Radio ready! Starting data transfer...",
+                log_verify: "Verifying completion...",
+                log_success: "UPDATE COMPLETED SUCCESSFULLY! The radio will restart.",
+                log_error_browser: "Your browser does not support Web Serial. Use Chrome or Edge."
+            },
+            it: {
+                title_installer: "Programma di Installazione",
+                fw_section_title: "Installazione Firmware",
+                fw_section_desc: "Usa questo pulsante per installare o aggiornare il sistema operativo",
+                btn_install: "INSTALLA FIRMWARE",
+                db_section_title: "Aggiornamento Database EIBI",
+                db_section_desc: "Usa questo pulsante per aggiornare la lista delle stazioni",
+                btn_update_db: "AGGIORNA DATABASE",
+                link_site: "Sito Ufficiale",
+                link_guide: "Guida Installazione",
+                log_downloading: "Scaricamento Database EIBI...",
+                log_select_port: "Seleziona la porta della radio...",
+                log_req_update: "Richiesta modalità aggiornamento...",
+                log_waiting: "In attesa della radio...",
+                log_ready: "Radio pronta! Inizio trasferimento...",
+                log_verify: "Verifica completamento...",
+                log_success: "AGGIORNAMENTO COMPLETATO! La radio si riavvierà.",
+                log_error_browser: "Il tuo browser non supporta Web Serial. Usa Chrome o Edge."
+            },
+            fr: {
+                title_installer: "Installateur",
+                fw_section_title: "Installation du Firmware",
+                fw_section_desc: "Utilisez ce bouton pour installer ou mettre à jour le système",
+                btn_install: "INSTALLER FIRMWARE",
+                db_section_title: "Mise à jour Base EIBI",
+                db_section_desc: "Utilisez ce bouton pour mettre à jour la liste des stations",
+                btn_update_db: "METTRE À JOUR BDD",
+                link_site: "Site Officiel",
+                link_guide: "Guide d'installation",
+                log_downloading: "Téléchargement de la base EIBI...",
+                log_select_port: "Sélectionnez le port de la radio...",
+                log_req_update: "Demande de mise à jour...",
+                log_waiting: "En attente de la radio...",
+                log_ready: "Radio prête ! Transfert en cours...",
+                log_verify: "Vérification...",
+                log_success: "MISE À JOUR RÉUSSIE ! La radio va redémarrer.",
+                log_error_browser: "Votre navigateur ne supporte pas Web Serial. Utilisez Chrome."
+            },
+            de: {
+                title_installer: "Installationsprogramm",
+                fw_section_title: "Firmware Installation",
+                fw_section_desc: "Verwenden Sie diese Taste zum Installieren oder Aktualisieren",
+                btn_install: "FIRMWARE INSTALLIEREN",
+                db_section_title: "EIBI Datenbank Update",
+                db_section_desc: "Verwenden Sie diese Taste, um die Stationsliste zu aktualisieren",
+                btn_update_db: "DATENBANK UPDATE",
+                link_site: "Offizielle Website",
+                link_guide: "Installationsanleitung",
+                log_downloading: "Lade EIBI-Datenbank herunter...",
+                log_select_port: "Wählen Sie den Radio-Port...",
+                log_req_update: "Update-Modus anfordern...",
+                log_waiting: "Warte auf Radio...",
+                log_ready: "Radio bereit! Datenübertragung...",
+                log_verify: "Überprüfung...",
+                log_success: "UPDATE ERFOLGREICH! Das Radio startet neu.",
+                log_error_browser: "Ihr Browser unterstützt Web Serial nicht. Nutzen Sie Chrome."
+            }
+        };
+
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const texts = translations[lang];
+
+            // Aggiorna testi statici
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (texts[key]) {
+                    el.innerText = texts[key];
+                }
+            });
+
+            // Aggiorna stile bottoni
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById('lang-' + lang);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Salva preferenza
+            localStorage.setItem('golden_lang', lang);
+        }
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        const savedLang = localStorage.getItem('golden_lang') || 'en';
+        setLanguage(savedLang);
+
+        // --- LETTURA VERSIONE ---
+        async function fetchVersion() {
+            try {
+                const response = await fetch('manifest.json');
+                if (!response.ok) return;
+                const data = await response.json();
+                const versionSpan = document.getElementById('versionLabel');
+                if (versionSpan && data.version) {
+                    versionSpan.innerText = 'v' + data.version;
+                }
+            } catch (error) { console.log("Ver check fail"); }
+        }
+        fetchVersion();
+
+
+        // --- LOGICA UPDATE ---
         const btnUpdate = document.getElementById('btnUpdateDB');
         const logDiv = document.getElementById('statusLog');
 
@@ -145,24 +325,24 @@
 
         btnUpdate.addEventListener('click', async () => {
             if (!navigator.serial) {
-                alert("Your browser does not support the Web Serial API. Please use Chrome or Edge.");
+                alert(t('log_error_browser'));
                 return;
             }
 
-            // Variabili per gestire la chiusura sicura in caso di errore
             let port = null;
             let writer = null;
             let reader = null;
 
             try {
-                log("Downloading EIBI Database...");
-                const response = await fetch('db/EIBI.DAT');
+                log(t('log_downloading'));
+                // Cache busting per evitare di scaricare file vecchi
+                const response = await fetch('db/EIBI.DAT?' + new Date().getTime());
                 if (!response.ok) throw new Error("Unable to download EIBI.DAT");
                 const blob = await response.blob();
                 const arrayBuffer = await blob.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
 
-                log("Select the radio port...");
+                log(t('log_select_port'));
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
 
@@ -172,136 +352,86 @@
                 const decoder = new TextDecoder();
 
                 // 1. Send Command
-                log("Requesting update mode...");
-                // Aggiungiamo un delay minimo per assicurarci che la porta sia pronta
+                log(t('log_req_update'));
                 await new Promise(r => setTimeout(r, 100));
 
                 const cmd = `UPLOAD_EIBI ${data.length}\n`;
                 await writer.write(encoder.encode(cmd));
 
-                // 2. Strict Wait for OK_READY with ACCUMULATOR
-                log("Waiting for radio handshake...");
+                // 2. Strict Wait for OK_READY
+                log(t('log_waiting'));
                 let readyReceived = false;
-                let handshakeBuffer = ""; // Accumulatore per il testo in ingresso
+                let handshakeBuffer = "";
+
+                // Timeout per handshake iniziale
+                const handshakeStart = Date.now();
 
                 while (!readyReceived) {
+                    if (Date.now() - handshakeStart > 10000) throw new Error("Timeout waiting for radio response");
+
                     const { value, done } = await reader.read();
                     if (done) throw new Error("Connection lost");
-
-                    // Aggiungi il nuovo pezzo al buffer
                     handshakeBuffer += decoder.decode(value);
-
-                    // Controlla se la frase magica è nel buffer accumulato
-                    if (handshakeBuffer.includes("OK_READY")) {
-                        readyReceived = true;
-                    }
-
-                    // Timeout di sicurezza (opzionale, ma utile se si blocca)
-                    // Se il buffer diventa enorme senza OK_READY, c'è un problema
-                    if (handshakeBuffer.length > 1000) handshakeBuffer = handshakeBuffer.slice(-500);
+                    if (handshakeBuffer.includes("OK_READY")) readyReceived = true;
                 }
-                log("Radio ready! Starting data transfer...");
+                log(t('log_ready'));
 
-                // 3. Send Data with SMART HANDSHAKE
-                const CHUNK_SIZE = 256; // Deve corrispondere al buffer della radio
+                // 3. Send Data
+                const CHUNK_SIZE = 256;
                 let finalDoneSeen = false;
 
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = data.slice(i, i + CHUNK_SIZE);
                     await writer.write(chunk);
 
-                    // Wait for confirmation 'K'
                     let ackReceived = false;
-                    let ackBuffer = ""; // Accumulatore anche qui
+                    let ackBuffer = "";
 
                     while (!ackReceived) {
                         const { value, done } = await reader.read();
-                        if (done) throw new Error("Connection lost during update");
+                        if (done) throw new Error("Connection lost");
 
                         const textChunk = decoder.decode(value);
                         ackBuffer += textChunk;
 
-                        // Check ACK (basta la K)
-                        if (ackBuffer.includes('K')) {
-                            ackReceived = true;
-                        }
-
-                        // Check early finish
-                        if (ackBuffer.includes("OK_DONE")) {
-                            finalDoneSeen = true;
-                        }
-
-                        // Check Errors
-                        if (ackBuffer.includes("ERROR")) throw new Error("Radio reported Error: " + ackBuffer);
+                        if (ackBuffer.includes('K')) ackReceived = true;
+                        if (ackBuffer.includes("OK_DONE")) finalDoneSeen = true;
+                        if (ackBuffer.includes("ERROR")) throw new Error("Radio Error: " + ackBuffer);
                     }
 
                     const percent = Math.round(((i + chunk.length) / data.length) * 100);
                     log(`Transfer: ${percent}%`);
                 }
 
-                log("Verifying completion...");
+                log(t('log_verify'));
 
                 // 4. Final Wait
                 if (!finalDoneSeen) {
                     let finalBuffer = "";
-                    // Timeout loop per non bloccare all'infinito
                     const startTime = Date.now();
-
                     while (true) {
-                        // Timeout di 5 secondi per la conferma finale
                         if (Date.now() - startTime > 5000) break;
-
-                        // Leggi con timeout (in un sistema reale servirebbe un reader.read con timeout, 
-                        // qui ci affidiamo al flusso dati)
-                        const { value, done } = await reader.read();
-                        if (done) break;
-
-                        finalBuffer += decoder.decode(value);
-
-                        if (finalBuffer.includes("OK_DONE")) {
-                            break;
-                        }
+                        try {
+                            const { value, done } = await reader.read();
+                            if (done) break;
+                            finalBuffer += decoder.decode(value);
+                            if (finalBuffer.includes("OK_DONE")) break;
+                        } catch (e) { break; }
                     }
                 }
 
-                log("UPDATE COMPLETED SUCCESSFULLY! The radio will restart.");
+                log(t('log_success'));
 
             } catch (err) {
                 console.error(err);
                 log("ERROR: " + err.message);
             } finally {
-                // Rilascio pulito delle risorse
                 if (writer) writer.releaseLock();
                 if (reader) reader.releaseLock();
                 if (port) await port.close();
             }
         });
     </script>
-
-    <!-- Script per leggere la versione dal manifest.json -->
-    <script>
-        async function fetchVersion() {
-            try {
-                // Legge il file manifest.json che si trova nella stessa cartella
-                const response = await fetch('manifest.json');
-                if (!response.ok) return;
-
-                const data = await response.json();
-
-                // Cerca l'elemento HTML e scrive la versione
-                const versionSpan = document.getElementById('versionLabel');
-                if (versionSpan && data.version) {
-                    versionSpan.innerText = 'v' + data.version;
-                }
-            } catch (error) {
-                console.log("Impossibile leggere la versione dal manifest");
-            }
-        }
-
-        // Avvia la funzione appena la pagina è caricata
-        fetchVersion();
-    </script>
-
 
 </body>
 
