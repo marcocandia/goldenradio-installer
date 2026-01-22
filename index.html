@@ -314,6 +314,16 @@
 
         let currentLang = 'en';
 
+        // --- NUOVO: Variabile per ricordare l'ultimo messaggio di stato ---
+        let currentLogKey = null;
+
+        // --- NUOVO: Funzione per loggare messaggi traducibili ---
+        function logT(key) {
+            currentLogKey = key; // Ricordiamo la chiave (es. 'log_success')
+            log(t(key));         // Scriviamo il testo tradotto
+        }
+
+
         function setLanguage(lang) {
             currentLang = lang;
             const texts = translations[lang];
@@ -335,6 +345,12 @@
 
             // Salva preferenza
             localStorage.setItem('golden_lang', lang);
+
+            // --- NUOVO: Aggiorna il messaggio di log se è una chiave nota ---
+            if (currentLogKey) {
+                // Riscrive il messaggio usando la nuova lingua
+                document.getElementById('statusLog').innerText = t(currentLogKey);
+            }
         }
 
         function t(key) {
@@ -376,7 +392,7 @@
             let reader = null;
 
             try {
-                log(t('log_downloading'));
+                logT('log_downloading');
                 // Cache busting per evitare di scaricare file vecchi
                 const response = await fetch('db/EIBI.DAT?' + new Date().getTime());
                 if (!response.ok) throw new Error("Unable to download EIBI.DAT");
@@ -384,7 +400,7 @@
                 const arrayBuffer = await blob.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
 
-                log(t('log_select_port'));
+                logT('log_select_port');
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
 
@@ -394,14 +410,14 @@
                 const decoder = new TextDecoder();
 
                 // 1. Send Command
-                log(t('log_req_update'));
+                logT('log_req_update');
                 await new Promise(r => setTimeout(r, 100));
 
                 const cmd = `UPLOAD_EIBI ${data.length}\n`;
                 await writer.write(encoder.encode(cmd));
 
                 // 2. Strict Wait for OK_READY
-                log(t('log_waiting'));
+                logT('log_waiting');
                 let readyReceived = false;
                 let handshakeBuffer = "";
 
@@ -416,7 +432,7 @@
                     handshakeBuffer += decoder.decode(value);
                     if (handshakeBuffer.includes("OK_READY")) readyReceived = true;
                 }
-                log(t('log_ready'));
+                logT('log_ready');
 
                 // 3. Send Data
                 const CHUNK_SIZE = 256;
@@ -445,7 +461,7 @@
                     log(`Transfer: ${percent}%`);
                 }
 
-                log(t('log_verify'));
+                logT('log_verify');
 
                 // 4. Final Wait
                 if (!finalDoneSeen) {
@@ -462,10 +478,12 @@
                     }
                 }
 
-                log(t('log_success'));
+                logT('log_success');
 
             } catch (err) {
                 console.error(err);
+                // Per gli errori, resetta la chiave così non prova a tradurli
+                currentLogKey = null;
                 log("ERROR: " + err.message);
             } finally {
                 if (writer) writer.releaseLock();
