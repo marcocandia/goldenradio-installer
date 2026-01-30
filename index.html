@@ -4,6 +4,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ANTI-CACHE META TAGS -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- -------------------- -->
+
     <title>GOLDENRADIO Firmware Web Installer</title>
     <style>
         :root {
@@ -409,9 +416,11 @@
         const savedLang = localStorage.getItem('golden_lang') || 'it'; // Default IT se non salvato
         setLanguage(savedLang);
 
+        // --- LETTURA VERSIONE ---
         async function fetchVersion() {
             try {
-                const response = await fetch('manifest.json');
+                // AGGIUNTA: ?v= + timestamp
+                const response = await fetch('manifest.json?v=' + new Date().getTime());
                 if (!response.ok) return;
                 const data = await response.json();
                 const versionSpan = document.getElementById('versionLabel');
@@ -439,7 +448,8 @@
 
             try {
                 logT('log_downloading');
-                const response = await fetch('db/EIBI.DAT?' + new Date().getTime());
+                const response = await fetch('db/EIBI.DAT?t=' + new Date().getTime());
+                //const response = await fetch('db/EIBI.DAT?' + new Date().getTime());
                 if (!response.ok) throw new Error("Unable to download EIBI.DAT");
                 const blob = await response.blob();
                 const arrayBuffer = await blob.arrayBuffer();
