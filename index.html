@@ -34,9 +34,10 @@
             gap: 8px;
             z-index: 1000;
             width: 100%;
-            /* Occupa la larghezza disponibile */
             justify-content: center;
-            /* Centra i pulsanti orizzontalmente */
+            flex-wrap: wrap;
+            /* Permette di andare a capo su schermi piccoli */
+            margin-bottom: 20px;
         }
 
         .lang-btn {
@@ -49,8 +50,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 50px;
-            /* Larghezza minima uniforme */
+            min-width: 40px;
+            /* Ridotto leggermente per farne stare di più */
         }
 
         .lang-btn:hover {
@@ -75,9 +76,8 @@
             max-width: 600px;
             width: 100%;
             border: 1px solid var(--border);
-            margin-top: 40px;
+            margin-top: 20px;
             position: relative;
-            /* Per contesto */
         }
 
         h1 span {
@@ -120,7 +120,6 @@
             font-size: 0.9em;
             min-height: 20px;
             white-space: pre-wrap;
-            /* Mantiene a capo */
         }
 
         esp-web-install-button {
@@ -147,18 +146,21 @@
 
 <body>
 
-    <!-- SELETTORE LINGUA (TESTUALE) -->
+    <!-- SELETTORE LINGUA (TESTUALE) - ORDINE AGGIORNATO -->
     <div class="lang-switch">
-        <button class="lang-btn" onclick="setLanguage('en')" id="lang-en">EN</button>
         <button class="lang-btn" onclick="setLanguage('it')" id="lang-it">IT</button>
+        <button class="lang-btn" onclick="setLanguage('en')" id="lang-en">EN</button>
         <button class="lang-btn" onclick="setLanguage('fr')" id="lang-fr">FR</button>
         <button class="lang-btn" onclick="setLanguage('de')" id="lang-de">DE</button>
+        <button class="lang-btn" onclick="setLanguage('es')" id="lang-es">ES</button>
         <button class="lang-btn" onclick="setLanguage('ru')" id="lang-ru">RU</button>
+        <button class="lang-btn" onclick="setLanguage('pl')" id="lang-pl">PL</button>
         <button class="lang-btn" onclick="setLanguage('zh')" id="lang-zh">CN</button>
+        <button class="lang-btn" onclick="setLanguage('ja')" id="lang-ja">JP</button>
     </div>
 
     <div class="container">
-        <!-- IMMAGINE RADIO (Assicurati che il file esista!) -->
+        <!-- IMMAGINE RADIO -->
         <img src="screenshot/PAGINAMAIN.png" alt="Radio" onerror="this.style.display='none'"
             style="width: 50%; display: block; margin: 0 auto 20px auto; border-radius: 8px;">
 
@@ -177,7 +179,7 @@
         </div>
 
         <div>
-            <h3 data-i18n="db_section_title">EiBi Database Update</h3>
+            <h3 data-i18n="db_section_title">EIBI Database Update</h3>
             <p data-i18n="db_section_desc">Use this button to install or update the station list</p>
             <button id="btnUpdateDB" class="btn btn-db" data-i18n="btn_update_db">UPDATE DATABASE</button>
             <div id="statusLog" class="log"></div>
@@ -193,20 +195,19 @@
     <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
 
     <script>
-        // --- GESTIONE TRADUZIONI ---
+        // --- GESTIONE TRADUZIONI COMPLETA ---
         const translations = {
             en: {
                 title_installer: "Installer",
                 fw_section_title: "Firmware Installation",
                 fw_section_desc: "Use this button to install or update the radio operating system",
                 btn_install: "INSTALL FIRMWARE",
-                db_section_title: "EiBi Database Update",
+                db_section_title: "EIBI Database Update",
                 db_section_desc: "Use this button to install or update the station list",
                 btn_update_db: "UPDATE DATABASE",
                 link_site: "Official Website",
                 link_guide: "Installation Guide",
-                // Status Messages
-                log_downloading: "Downloading EiBi Database...",
+                log_downloading: "Downloading EIBI Database...",
                 log_select_port: "Select the radio port...",
                 log_req_update: "Requesting update mode...",
                 log_waiting: "Waiting for radio handshake...",
@@ -220,12 +221,12 @@
                 fw_section_title: "Installazione Firmware",
                 fw_section_desc: "Usa questo pulsante per installare o aggiornare il sistema operativo",
                 btn_install: "INSTALLA FIRMWARE",
-                db_section_title: "Aggiornamento Database EiBi",
+                db_section_title: "Aggiornamento Database EIBI",
                 db_section_desc: "Usa questo pulsante per aggiornare la lista delle stazioni",
                 btn_update_db: "AGGIORNA DATABASE",
                 link_site: "Sito Ufficiale",
                 link_guide: "Guida Installazione",
-                log_downloading: "Scaricamento Database EiBi...",
+                log_downloading: "Scaricamento Database EIBI...",
                 log_select_port: "Seleziona la porta della radio...",
                 log_req_update: "Richiesta modalità aggiornamento...",
                 log_waiting: "In attesa della radio...",
@@ -239,12 +240,12 @@
                 fw_section_title: "Installation du Firmware",
                 fw_section_desc: "Utilisez ce bouton pour installer ou mettre à jour le système",
                 btn_install: "INSTALLER FIRMWARE",
-                db_section_title: "Mise à jour Base EiBi",
+                db_section_title: "Mise à jour Base EIBI",
                 db_section_desc: "Utilisez ce bouton pour mettre à jour la liste des stations",
                 btn_update_db: "METTRE À JOUR BDD",
                 link_site: "Site Officiel",
                 link_guide: "Guide d'installation",
-                log_downloading: "Téléchargement de la base EiBi...",
+                log_downloading: "Téléchargement de la base EIBI...",
                 log_select_port: "Sélectionnez le port de la radio...",
                 log_req_update: "Demande de mise à jour...",
                 log_waiting: "En attente de la radio...",
@@ -258,12 +259,12 @@
                 fw_section_title: "Firmware Installation",
                 fw_section_desc: "Verwenden Sie diese Taste zum Installieren oder Aktualisieren",
                 btn_install: "FIRMWARE INSTALLIEREN",
-                db_section_title: "EiBi Datenbank Update",
+                db_section_title: "EIBI Datenbank Update",
                 db_section_desc: "Verwenden Sie diese Taste, um die Stationsliste zu aktualisieren",
                 btn_update_db: "DATENBANK UPDATE",
                 link_site: "Offizielle Website",
                 link_guide: "Installationsanleitung",
-                log_downloading: "Lade EiBi-Datenbank herunter...",
+                log_downloading: "Lade EIBI-Datenbank herunter...",
                 log_select_port: "Wählen Sie den Radio-Port...",
                 log_req_update: "Update-Modus anfordern...",
                 log_waiting: "Warte auf Radio...",
@@ -272,17 +273,36 @@
                 log_success: "UPDATE ERFOLGREICH! Das Radio startet neu.",
                 log_error_browser: "Ihr Browser unterstützt Web Serial nicht. Nutzen Sie Chrome."
             },
+            es: {
+                title_installer: "Instalador",
+                fw_section_title: "Instalación de Firmware",
+                fw_section_desc: "Use este botón para instalar o actualizar el sistema operativo",
+                btn_install: "INSTALAR FIRMWARE",
+                db_section_title: "Actualización Base de Datos EIBI",
+                db_section_desc: "Use este botón para actualizar la lista de estaciones",
+                btn_update_db: "ACTUALIZAR BASE DATOS",
+                link_site: "Sitio Oficial",
+                link_guide: "Guía de Instalación",
+                log_downloading: "Descargando Base de Datos EIBI...",
+                log_select_port: "Seleccione el puerto de la radio...",
+                log_req_update: "Solicitando modo de actualización...",
+                log_waiting: "Esperando a la radio...",
+                log_ready: "¡Radio lista! Iniciando transferencia...",
+                log_verify: "Verificando finalización...",
+                log_success: "¡ACTUALIZACIÓN COMPLETADA! La radio se reiniciará.",
+                log_error_browser: "Su navegador no soporta Web Serial. Use Chrome o Edge."
+            },
             ru: {
                 title_installer: "Установщик",
                 fw_section_title: "Установка прошивки",
                 fw_section_desc: "Нажмите для установки или обновления ОС радиоприемника",
                 btn_install: "УСТАНОВИТЬ ПРОШИВКУ",
-                db_section_title: "Обновление базы EiBi",
+                db_section_title: "Обновление базы EIBI",
                 db_section_desc: "Нажмите для обновления списка радиостанций",
                 btn_update_db: "ОБНОВИТЬ БАЗУ",
                 link_site: "Официальный сайт",
                 link_guide: "Инструкция",
-                log_downloading: "Загрузка базы EiBi...",
+                log_downloading: "Загрузка базы EIBI...",
                 log_select_port: "Выберите порт радиоприемника...",
                 log_req_update: "Запрос режима обновления...",
                 log_waiting: "Ожидание ответа от радио...",
@@ -291,17 +311,36 @@
                 log_success: "ОБНОВЛЕНИЕ ЗАВЕРШЕНО! Радио перезагружается.",
                 log_error_browser: "Ваш браузер не поддерживает Web Serial. Используйте Chrome или Edge."
             },
+            pl: {
+                title_installer: "Instalator",
+                fw_section_title: "Instalacja Oprogramowania",
+                fw_section_desc: "Użyj tego przycisku, aby zainstalować lub zaktualizować system",
+                btn_install: "ZAINSTALUJ FIRMWARE",
+                db_section_title: "Aktualizacja Bazy EIBI",
+                db_section_desc: "Użyj tego przycisku, aby zaktualizować listę stacji",
+                btn_update_db: "AKTUALIZUJ BAZĘ",
+                link_site: "Oficjalna Strona",
+                link_guide: "Instrukcja Instalacji",
+                log_downloading: "Pobieranie Bazy EIBI...",
+                log_select_port: "Wybierz port radia...",
+                log_req_update: "Żądanie trybu aktualizacji...",
+                log_waiting: "Oczekiwanie na radio...",
+                log_ready: "Radio gotowe! Rozpoczynanie transferu...",
+                log_verify: "Weryfikacja...",
+                log_success: "AKTUALIZACJA ZAKOŃCZONA! Radio uruchomi się ponownie.",
+                log_error_browser: "Twoja przeglądarka nie obsługuje Web Serial. Użyj Chrome lub Edge."
+            },
             zh: {
                 title_installer: "安装程序",
                 fw_section_title: "固件安装",
                 fw_section_desc: "使用此按钮安装或更新收音机操作系统",
                 btn_install: "安装固件",
-                db_section_title: "EiBi 数据库更新",
+                db_section_title: "EIBI 数据库更新",
                 db_section_desc: "使用此按钮更新电台列表",
                 btn_update_db: "更新数据库",
                 link_site: "官方网站",
                 link_guide: "安装指南",
-                log_downloading: "正在下载 EiBi 数据库...",
+                log_downloading: "正在下载 EIBI 数据库...",
                 log_select_port: "请选择收音机端口...",
                 log_req_update: "请求更新模式...",
                 log_waiting: "等待收音机响应...",
@@ -309,26 +348,40 @@
                 log_verify: "正在验证...",
                 log_success: "更新成功! 收音机正在重启。",
                 log_error_browser: "您的浏览器不支持 Web Serial API。请使用 Chrome 或 Edge。"
+            },
+            ja: {
+                title_installer: "インストーラー",
+                fw_section_title: "ファームウェアのインストール",
+                fw_section_desc: "このボタンを使用して、OSをインストールまたは更新します",
+                btn_install: "ファームウェアをインストール",
+                db_section_title: "EIBI データベース更新",
+                db_section_desc: "このボタンを使用して、ステーションリストを更新します",
+                btn_update_db: "データベースを更新",
+                link_site: "公式サイト",
+                link_guide: "インストールガイド",
+                log_downloading: "EIBIデータベースをダウンロード中...",
+                log_select_port: "ラジオのポートを選択...",
+                log_req_update: "更新モードをリクエスト中...",
+                log_waiting: "ラジオの応答を待機中...",
+                log_ready: "準備完了！データ転送を開始...",
+                log_verify: "検証中...",
+                log_success: "更新が完了しました！ラジオが再起動します。",
+                log_error_browser: "お使いのブラウザはWeb Serialをサポートしていません。ChromeまたはEdgeを使用してください。"
             }
         };
 
         let currentLang = 'en';
-
-        // --- NUOVO: Variabile per ricordare l'ultimo messaggio di stato ---
         let currentLogKey = null;
 
-        // --- NUOVO: Funzione per loggare messaggi traducibili ---
         function logT(key) {
-            currentLogKey = key; // Ricordiamo la chiave (es. 'log_success')
-            log(t(key));         // Scriviamo il testo tradotto
+            currentLogKey = key;
+            log(t(key));
         }
-
 
         function setLanguage(lang) {
             currentLang = lang;
             const texts = translations[lang];
 
-            // Aggiorna testi statici
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (texts[key]) {
@@ -336,19 +389,15 @@
                 }
             });
 
-            // Aggiorna stile bottoni
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             const activeBtn = document.getElementById('lang-' + lang);
             if (activeBtn) activeBtn.classList.add('active');
 
-            // Salva preferenza
             localStorage.setItem('golden_lang', lang);
 
-            // --- NUOVO: Aggiorna il messaggio di log se è una chiave nota ---
             if (currentLogKey) {
-                // Riscrive il messaggio usando la nuova lingua
                 document.getElementById('statusLog').innerText = t(currentLogKey);
             }
         }
@@ -357,10 +406,9 @@
             return translations[currentLang][key] || key;
         }
 
-        const savedLang = localStorage.getItem('golden_lang') || 'en';
+        const savedLang = localStorage.getItem('golden_lang') || 'it'; // Default IT se non salvato
         setLanguage(savedLang);
 
-        // --- LETTURA VERSIONE ---
         async function fetchVersion() {
             try {
                 const response = await fetch('manifest.json');
@@ -374,8 +422,6 @@
         }
         fetchVersion();
 
-
-        // --- LOGICA UPDATE ---
         const btnUpdate = document.getElementById('btnUpdateDB');
         const logDiv = document.getElementById('statusLog');
 
@@ -393,7 +439,6 @@
 
             try {
                 logT('log_downloading');
-                // Cache busting per evitare di scaricare file vecchi
                 const response = await fetch('db/EIBI.DAT?' + new Date().getTime());
                 if (!response.ok) throw new Error("Unable to download EIBI.DAT");
                 const blob = await response.blob();
@@ -409,24 +454,19 @@
                 const encoder = new TextEncoder();
                 const decoder = new TextDecoder();
 
-                // 1. Send Command
                 logT('log_req_update');
                 await new Promise(r => setTimeout(r, 100));
 
                 const cmd = `UPLOAD_EIBI ${data.length}\n`;
                 await writer.write(encoder.encode(cmd));
 
-                // 2. Strict Wait for OK_READY
                 logT('log_waiting');
                 let readyReceived = false;
                 let handshakeBuffer = "";
-
-                // Timeout per handshake iniziale
                 const handshakeStart = Date.now();
 
                 while (!readyReceived) {
                     if (Date.now() - handshakeStart > 10000) throw new Error("Timeout waiting for radio response");
-
                     const { value, done } = await reader.read();
                     if (done) throw new Error("Connection lost");
                     handshakeBuffer += decoder.decode(value);
@@ -434,7 +474,6 @@
                 }
                 logT('log_ready');
 
-                // 3. Send Data
                 const CHUNK_SIZE = 256;
                 let finalDoneSeen = false;
 
@@ -448,7 +487,6 @@
                     while (!ackReceived) {
                         const { value, done } = await reader.read();
                         if (done) throw new Error("Connection lost");
-
                         const textChunk = decoder.decode(value);
                         ackBuffer += textChunk;
 
@@ -463,7 +501,6 @@
 
                 logT('log_verify');
 
-                // 4. Final Wait
                 if (!finalDoneSeen) {
                     let finalBuffer = "";
                     const startTime = Date.now();
@@ -482,7 +519,6 @@
 
             } catch (err) {
                 console.error(err);
-                // Per gli errori, resetta la chiave così non prova a tradurli
                 currentLogKey = null;
                 log("ERROR: " + err.message);
             } finally {
